@@ -1,0 +1,12 @@
+language = "nodejs"
+run = "npm start"
+
+[packager]
+language = "nodejs"
+
+[packager.features]
+packageSearch = true
+guessImports = true
+
+[nix]
+channel = "stable-23_11"

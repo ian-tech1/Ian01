@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAN TECH WhatsApp Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .status-card {
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .status-connected { color: #4CAF50; }
+        .status-disconnected { color: #f44336; }
+        .status-qr { color: #2196F3; }
+        .status-connecting { color: #FF9800; }
+
+        .status-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .user-info {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #qrCode {
+            width: 250px;
+            height: 250px;
+            margin: 20px 0;
+            border: 10px solid white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .message-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input, textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .logs-card {
+            grid-column: 1 / -1;
+        }
+
+        .logs {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .log-entry {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .log-time {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .log-message {
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+
+        .log-sender {
+            font-weight: bold;
+            color: #2196F3;
+        }
+
+        .connected-as {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #f44336;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #FF9800;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fab fa-whatsapp"></i> IAN TECH WhatsApp Bot</h1>
+            <p>Manage your WhatsApp bot from the web interface</p>
+        </div>
+
+        <div class="dashboard">
+            <div class="card status-card">
+                <div id="statusIcon" class="status-icon">
+                    <i class="fas fa-plug"></i>
+                </div>
+                <div id="statusText" class="status-text">Disconnected</div>
+                <div id="userInfo" class="user-info" style="display: none;">
+                    <div class="connected-as">
+                        <strong><i class="fas fa-user"></i> Connected as:</strong>
+                        <div id="phoneNumber"></div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button onclick="restartBot()" class="btn-danger">
+                        <i class="fas fa-redo"></i> Restart Bot
+                    </button>
+                    <button onclick="getQR()" class="btn-secondary">
+                        <i class="fas fa-qrcode"></i> Show QR
+                    </button>
+                </div>
+            </div>
+
+            <div class="card qr-container" id="qrCard" style="display: none;">
+                <h2><i class="fas fa-qrcode"></i> Scan QR Code</h2>
+                <p>Open WhatsApp → Settings → Linked Devices → Link a Device</p>
+                <div id="qrCodeDisplay"></div>
+                <p style="color: #666; margin-top: 10px;">The QR will refresh automatically</p>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-paper-plane"></i> Send Message</h2>
+                <div class="message-form">
+                    <input type="text" id="numberInput" placeholder="Phone number (e.g., 254712345678)">
+                    <textarea id="messageInput" placeholder="Type your message here..."></textarea>
+                    <button onclick="sendMessage()" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </div>
+            </div>
+
+            <div class="card logs-card">
+                <h2><i class="fas fa-history"></i> Activity Logs</h2>
+                <div class="alert" id="alert"></div>
+                <div class="logs" id="logs"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        let socket = io();
+        let logs = [];
+
+        // Socket event handlers
+        socket.on('connect', () => {
+            addLog('Connected to server', 'system');
+        });
+
+        socket.on('status', (status) => {
+            updateStatus(status);
+        });
+
+        socket.on('qr', (qrCode) => {
+            showQRCode(qrCode);
+        });
+
+        socket.on('connected', (data) => {
+            showConnected(data);
+        });
+
+        socket.on('message', (msg) => {
+            addLog(msg.text, msg.from, msg.timestamp);
+        });
+
+        socket.on('logout', () => {
+            showAlert('You have been logged out. Please scan QR code again.', 'warning');
+            document.getElementById('userInfo').style.display = 'none';
+        });
+
+        socket.on('error', (error) => {
+            showAlert('Error: ' + error, 'error');
+        });
+
+        // Update status display
+        function updateStatus(status) {
+            const statusText = document.getElementById('statusText');
+            const statusIcon = document.getElementById('statusIcon');
+            const qrCard = document.getElementById('qrCard');
+            
+            statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            let iconClass, icon, color;
+            
+            switch(status) {
+                case 'connected':
+                    iconClass = 'status-connected';
+                    icon = 'fas fa-check-circle';
+                    color = '#4CAF50';
+                    qrCard.style.display = 'none';
+                    break;
+                case 'qr_ready':
+                    iconClass = 'status-qr';
+                    icon = 'fas fa-qrcode';
+                    color = '#2196F3';
+                    qrCard.style.display = 'block';
+                    break;
+                case 'connecting':
+                    iconClass = 'status-connecting';
+                    icon = 'fas fa-sync fa-spin';
+                    color = '#FF9800';
+                    qrCard.style.display = 'none';
+                    break;
+                default:
+                    iconClass = 'status-disconnected';
+                    icon = 'fas fa-times-circle';
+                    color = '#f44336';
+                    qrCard.style.display = 'none';
+            }
+            
+            statusIcon.className = 'status-icon ' + iconClass;
+            statusIcon.innerHTML = `<i class="${icon}"></i>`;
+            statusIcon.style.color = color;
+            
+            addLog(`Status changed to: ${status}`, 'system');
+        }
+
+        // Show QR Code
+        function showQRCode(qrCode) {
+            const qrContainer = document.getElementById('qrCodeDisplay');
+            qrContainer.innerHTML = '';
+            
+            QRCode.toCanvas(qrCode, {
+                width: 250,
+                height: 250,
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function(err, canvas) {
+                if (err) {
+                    console.error(err);
+                    return;
+                }
+                qrContainer.appendChild(canvas);
+            });
+            
+            addLog('New QR code generated', 'system');
+        }
+
+        // Show connected user info
+        function showConnected(data) {
+            const userInfo = document.getElementById('userInfo');
+            const phoneNumber = document.getElementById('phoneNumber');
+            
+            if (data.phone) {
+                phoneNumber.textContent = data.phone;
+                userInfo.style.display = 'block';
+                showAlert('Successfully connected to WhatsApp!', 'success');
+                addLog(`Connected as: ${data.phone}`, 'system');
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const number = document.getElementById('numberInput').value;
+            const message = document.getElementById('messageInput').value;
+            
+            if (!number || !message) {
+                showAlert('Please enter both number and message', 'warning');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ number, message })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addLog(`Message sent to ${number}: ${message}`, 'You');
+                    document.getElementById('messageInput').value = '';
+                    showAlert('Message sent successfully!', 'success');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Restart bot
+        async function restartBot() {
+            if (!confirm('Are you sure you want to restart the bot? This will clear the current session.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/restart', { method: 'POST' });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showAlert('Bot restarting...', 'warning');
+                    addLog('Bot restart initiated', 'system');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        // Get QR code
+        function getQR() {
+            socket.emit('get_qr');
+        }
+
+        // Add log entry
+        function addLog(message, sender = 'system', timestamp = new Date()) {
+            logs.push({ message, sender, timestamp });
+            
+            if (logs.length > 50) logs.shift();
+            
+            const logsContainer = document.getElementById('logs');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const time = new Date(timestamp).toLocaleTimeString();
+            logEntry.innerHTML = `
+                <span class="log-time">${time}</span>
+                <span class="log-sender">${sender}:</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initial load
+        fetch('/api/status')
+            .then(res => res.json())
+            .then(data => {
+                updateStatus(data.status);
+                if (data.user) {
+                    showConnected({ phone: data.user.id.split(':')[0] });
+                }
+            })
+            .catch(err => {
+                console.error('Failed to load status:', err);
+            });
+    </script>
+</body>
+</html>

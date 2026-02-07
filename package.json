@@ -1,24 +1,23 @@
 {
-  "name": "ian-tech-whatsapp-bot",
+  "name": "ian-tech-whatsapp-pairing-server",
   "version": "1.0.0",
-  "description": "IAN TECH WhatsApp Bot with Baileys v7",
+  "description": "IAN TECH WhatsApp Pairing Server with QR & Pairing Codes",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
-  "keywords": ["whatsapp", "bot", "baileys", "replit"],
+  "keywords": ["whatsapp", "pairing", "qr", "code", "ian-tech"],
   "author": "IAN TECH",
   "license": "MIT",
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
-    "qrcode-terminal": "^0.12.0",
-    "axios": "^1.6.2",
-    "fs-extra": "^11.2.0",
+    "qrcode": "^1.5.3",
     "dotenv": "^16.3.1",
-    "chalk": "^4.1.2"
+    "cors": "^2.8.5",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

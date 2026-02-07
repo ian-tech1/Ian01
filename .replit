@@ -1,5 +1,6 @@
 language = "nodejs"
 run = "npm start"
+entrypoint = "server.js"
 
 [packager]
 language = "nodejs"
@@ -10,3 +11,6 @@ guessImports = true
 
 [nix]
 channel = "stable-23_11"
+
+[deployment]
+run = ["npm", "start"]

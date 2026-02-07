@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IAN TECH WhatsApp Bot</title>
+    <title>IAN TECH WhatsApp Pairing Server</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -13,11 +13,11 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: #333;
             min-height: 100vh;
             padding: 20px;
-            color: #333;
         }
 
         .container {
@@ -29,11 +29,11 @@
             text-align: center;
             margin-bottom: 30px;
             color: white;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .header h1 {
-            font-size: 2.5em;
+            font-size: 2.8em;
             margin-bottom: 10px;
         }
 
@@ -45,11 +45,11 @@
         .dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 25px;
+            margin-bottom: 30px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             .dashboard {
                 grid-template-columns: 1fr;
             }
@@ -58,167 +58,218 @@
         .card {
             background: white;
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
         }
 
-        .status-card {
-            text-align: center;
+        .card:hover {
+            transform: translateY(-5px);
         }
 
-        .status-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-        }
-
-        .status-connected { color: #4CAF50; }
-        .status-disconnected { color: #f44336; }
-        .status-qr { color: #2196F3; }
-        .status-connecting { color: #FF9800; }
-
-        .status-text {
+        .card-title {
             font-size: 1.5em;
-            font-weight: bold;
-            margin: 10px 0;
+            color: #1a2980;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .user-info {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+        .card-title i {
+            font-size: 1.2em;
         }
 
         .qr-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
         }
 
         #qrCode {
-            width: 250px;
-            height: 250px;
-            margin: 20px 0;
+            max-width: 250px;
+            margin: 0 auto;
             border: 10px solid white;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+        .pairing-code {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2em;
+            font-weight: bold;
+            letter-spacing: 5px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        button {
-            padding: 12px 25px;
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .status-connected { background: #4CAF50; color: white; }
+        .status-qr { background: #2196F3; color: white; }
+        .status-disconnected { background: #f44336; color: white; }
+        .status-initializing { background: #FF9800; color: white; }
+
+        .session-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 14px 28px;
             border: none;
             border-radius: 8px;
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .btn-primary {
-            background: #4CAF50;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
 
         .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-success:hover {
             background: #45a049;
             transform: translateY(-2px);
         }
 
-        .btn-danger {
-            background: #f44336;
+        .btn-warning {
+            background: #FF9800;
             color: white;
         }
 
-        .btn-danger:hover {
-            background: #d32f2f;
+        .btn-warning:hover {
+            background: #e68a00;
             transform: translateY(-2px);
         }
 
-        .btn-secondary {
-            background: #2196F3;
-            color: white;
+        .sessions-list {
+            margin-top: 20px;
         }
 
-        .btn-secondary:hover {
-            background: #1976D2;
-            transform: translateY(-2px);
-        }
-
-        .message-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        input, textarea {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            transition: border 0.3s;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .logs-card {
-            grid-column: 1 / -1;
-        }
-
-        .logs {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 15px;
+        .session-item {
+            background: #f8f9fa;
             padding: 15px;
-            background: #f9f9f9;
             border-radius: 8px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .log-entry {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+            border-left: 4px solid #2196F3;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .log-time {
-            color: #666;
+        .session-details {
+            flex-grow: 1;
+        }
+
+        .session-id {
+            font-weight: bold;
+            color: #1a2980;
+        }
+
+        .session-code {
+            font-family: 'Courier New', monospace;
+            background: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 4px;
             font-size: 0.9em;
         }
 
-        .log-message {
-            flex-grow: 1;
-            margin-left: 10px;
-        }
-
-        .log-sender {
-            font-weight: bold;
-            color: #2196F3;
-        }
-
-        .connected-as {
-            background: #e8f5e9;
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
             padding: 15px;
             border-radius: 8px;
-            margin-top: 15px;
-            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .instructions li {
+            margin-bottom: 10px;
+        }
+
+        .admin-info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .phone-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-input select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .phone-input input {
+            flex-grow: 1;
         }
 
         .alert {
@@ -231,278 +282,351 @@
         .alert-success {
             background: #d4edda;
             color: #155724;
-            border-left: 4px solid #4CAF50;
+            border: 1px solid #c3e6cb;
         }
 
         .alert-error {
             background: #f8d7da;
             color: #721c24;
-            border-left: 4px solid #f44336;
+            border: 1px solid #f5c6cb;
         }
 
         .alert-warning {
             background: #fff3cd;
             color: #856404;
-            border-left: 4px solid #FF9800;
+            border: 1px solid #ffeaa7;
+        }
+
+        .copy-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .copy-btn:hover {
+            background: #5a6268;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1><i class="fab fa-whatsapp"></i> IAN TECH WhatsApp Bot</h1>
-            <p>Manage your WhatsApp bot from the web interface</p>
+            <h1><i class="fab fa-whatsapp"></i> IAN TECH WhatsApp Pairing Server</h1>
+            <p>Generate QR Codes & 8-Digit Pairing Codes for WhatsApp Bot</p>
         </div>
 
         <div class="dashboard">
-            <div class="card status-card">
-                <div id="statusIcon" class="status-icon">
-                    <i class="fas fa-plug"></i>
+            <!-- QR Code & Pairing Code Card -->
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-qrcode"></i> Active Session</h2>
+                
+                <div id="sessionStatus" class="status-badge status-initializing">
+                    <i class="fas fa-sync fa-spin"></i> Initializing...
                 </div>
-                <div id="statusText" class="status-text">Disconnected</div>
-                <div id="userInfo" class="user-info" style="display: none;">
-                    <div class="connected-as">
-                        <strong><i class="fas fa-user"></i> Connected as:</strong>
-                        <div id="phoneNumber"></div>
+
+                <div id="sessionInfo" class="session-info" style="display: none;">
+                    <div><strong>Session ID:</strong> <span id="currentSessionId"></span></div>
+                    <div><strong>Created:</strong> <span id="sessionCreated"></span></div>
+                    <div><strong>Phone:</strong> <span id="sessionPhone"></span></div>
+                </div>
+
+                <div id="qrSection" style="display: none;">
+                    <div class="qr-container">
+                        <h3>Scan QR Code</h3>
+                        <p>Open WhatsApp → Settings → Linked Devices → Link a Device</p>
+                        <img id="qrCode" src="" alt="QR Code">
+                    </div>
+
+                    <div class="pairing-code" id="pairingCodeDisplay">
+                        Loading...
+                    </div>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button onclick="copyPairingCode()" class="copy-btn">
+                            <i class="far fa-copy"></i> Copy Code
+                        </button>
+                        <button onclick="refreshQR()" class="copy-btn">
+                            <i class="fas fa-redo"></i> Refresh QR
+                        </button>
                     </div>
                 </div>
-                
-                <div class="controls">
-                    <button onclick="restartBot()" class="btn-danger">
-                        <i class="fas fa-redo"></i> Restart Bot
-                    </button>
-                    <button onclick="getQR()" class="btn-secondary">
-                        <i class="fas fa-qrcode"></i> Show QR
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button onclick="createNewSession()" class="btn btn-warning">
+                        <i class="fas fa-plus"></i> Create New Session
                     </button>
                 </div>
             </div>
 
-            <div class="card qr-container" id="qrCard" style="display: none;">
-                <h2><i class="fas fa-qrcode"></i> Scan QR Code</h2>
-                <p>Open WhatsApp → Settings → Linked Devices → Link a Device</p>
-                <div id="qrCodeDisplay"></div>
-                <p style="color: #666; margin-top: 10px;">The QR will refresh automatically</p>
-            </div>
-
+            <!-- Pairing Form Card -->
             <div class="card">
-                <h2><i class="fas fa-paper-plane"></i> Send Message</h2>
-                <div class="message-form">
-                    <input type="text" id="numberInput" placeholder="Phone number (e.g., 254712345678)">
-                    <textarea id="messageInput" placeholder="Type your message here..."></textarea>
-                    <button onclick="sendMessage()" class="btn-primary">
-                        <i class="fas fa-paper-plane"></i> Send Message
+                <h2 class="card-title"><i class="fas fa-link"></i> Pair with Code</h2>
+                
+                <div class="instructions">
+                    <strong><i class="fas fa-info-circle"></i> How to Pair:</strong>
+                    <ol>
+                        <li>Get 8-digit pairing code from left panel</li>
+                        <li>Enter your WhatsApp number below</li>
+                        <li>Click "Pair Now"</li>
+                        <li>Check your WhatsApp for confirmation message</li>
+                    </ol>
+                </div>
+
+                <form id="pairingForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-hashtag"></i> 8-Digit Pairing Code</label>
+                        <input type="text" id="pairingCodeInput" class="form-control" 
+                               placeholder="e.g., A1B2C3D4" maxlength="8" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> WhatsApp Number</label>
+                        <div class="phone-input">
+                            <select id="countryCode">
+                                <option value="+254">+254 (Kenya)</option>
+                                <option value="+255">+255 (Tanzania)</option>
+                                <option value="+256">+256 (Uganda)</option>
+                                <option value="+27">+27 (South Africa)</option>
+                            </select>
+                            <input type="tel" id="phoneNumber" class="form-control" 
+                                   placeholder="723278526" pattern="[0-9]{9,12}" required>
+                        </div>
+                        <small>Format: +254723278526</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success" style="width: 100%;">
+                        <i class="fas fa-link"></i> Pair Now
                     </button>
+                </form>
+
+                <div class="admin-info">
+                    <p><i class="fas fa-headset"></i> <strong>Admin Support:</strong> ${CONFIG.ADMIN_CONTACT}</p>
+                    <p><i class="fas fa-user-circle"></i> <strong>Profile:</strong> <a href="${CONFIG.PROFILE_PIC_URL}" target="_blank">View Profile Picture</a></p>
                 </div>
             </div>
 
-            <div class="card logs-card">
-                <h2><i class="fas fa-history"></i> Activity Logs</h2>
-                <div class="alert" id="alert"></div>
-                <div class="logs" id="logs"></div>
+            <!-- Active Sessions Card -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2 class="card-title"><i class="fas fa-list"></i> Active Sessions</h2>
+                <div id="sessionsList" class="sessions-list">
+                    <p>Loading sessions...</p>
+                </div>
             </div>
         </div>
+
+        <div class="alert" id="alertMessage"></div>
     </div>
 
-    <!-- QR Code Library -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <!-- Socket.io -->
     <script src="/socket.io/socket.io.js"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
     <script>
-        let socket = io();
-        let logs = [];
+        const socket = io();
+        let currentSession = null;
 
         // Socket event handlers
         socket.on('connect', () => {
-            addLog('Connected to server', 'system');
+            console.log('Connected to pairing server');
+            showAlert('Connected to pairing server', 'success');
         });
 
-        socket.on('status', (status) => {
-            updateStatus(status);
+        socket.on('init', (data) => {
+            updateSessionsList(data.sessions);
+            if (data.sessions.length > 0) {
+                currentSession = data.sessions[0];
+                updateSessionDisplay(currentSession);
+            }
         });
 
-        socket.on('qr', (qrCode) => {
-            showQRCode(qrCode);
+        socket.on('qr_update', (data) => {
+            if (currentSession && data.sessionId === currentSession.id) {
+                document.getElementById('qrCode').src = data.qrCode;
+                document.getElementById('pairingCodeDisplay').textContent = data.pairingCode;
+                document.getElementById('qrSection').style.display = 'block';
+                
+                updateStatus('qr_ready');
+                showAlert('New QR code generated!', 'success');
+            }
         });
 
-        socket.on('connected', (data) => {
-            showConnected(data);
+        socket.on('session_update', (data) => {
+            updateSessionDisplay(data);
+            
+            if (data.status === 'connected') {
+                showAlert(`✅ Connected successfully! Session: ${data.sessionId}`, 'success');
+            }
         });
 
-        socket.on('message', (msg) => {
-            addLog(msg.text, msg.from, msg.timestamp);
-        });
+        // Update session display
+        function updateSessionDisplay(session) {
+            currentSession = session;
+            
+            // Update status
+            updateStatus(session.status);
+            
+            // Update session info
+            document.getElementById('currentSessionId').textContent = session.id;
+            document.getElementById('sessionCreated').textContent = 
+                new Date(session.createdAt).toLocaleString();
+            
+            if (session.user) {
+                document.getElementById('sessionPhone').textContent = 
+                    session.user.phone || 'Unknown';
+                document.getElementById('sessionInfo').style.display = 'block';
+            }
+            
+            // Update pairing code
+            if (session.pairingCode) {
+                document.getElementById('pairingCodeDisplay').textContent = 
+                    session.pairingCode;
+                document.getElementById('pairingCodeInput').value = 
+                    session.pairingCode;
+            }
+        }
 
-        socket.on('logout', () => {
-            showAlert('You have been logged out. Please scan QR code again.', 'warning');
-            document.getElementById('userInfo').style.display = 'none';
-        });
-
-        socket.on('error', (error) => {
-            showAlert('Error: ' + error, 'error');
-        });
-
-        // Update status display
+        // Update status badge
         function updateStatus(status) {
-            const statusText = document.getElementById('statusText');
-            const statusIcon = document.getElementById('statusIcon');
-            const qrCard = document.getElementById('qrCard');
-            
-            statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-            
-            let iconClass, icon, color;
+            const badge = document.getElementById('sessionStatus');
+            badge.className = 'status-badge ';
             
             switch(status) {
                 case 'connected':
-                    iconClass = 'status-connected';
-                    icon = 'fas fa-check-circle';
-                    color = '#4CAF50';
-                    qrCard.style.display = 'none';
+                    badge.innerHTML = '<i class="fas fa-check-circle"></i> Connected';
+                    badge.classList.add('status-connected');
                     break;
                 case 'qr_ready':
-                    iconClass = 'status-qr';
-                    icon = 'fas fa-qrcode';
-                    color = '#2196F3';
-                    qrCard.style.display = 'block';
+                    badge.innerHTML = '<i class="fas fa-qrcode"></i> QR Ready - Scan Now';
+                    badge.classList.add('status-qr');
                     break;
-                case 'connecting':
-                    iconClass = 'status-connecting';
-                    icon = 'fas fa-sync fa-spin';
-                    color = '#FF9800';
-                    qrCard.style.display = 'none';
+                case 'disconnected':
+                    badge.innerHTML = '<i class="fas fa-times-circle"></i> Disconnected';
+                    badge.classList.add('status-disconnected');
                     break;
                 default:
-                    iconClass = 'status-disconnected';
-                    icon = 'fas fa-times-circle';
-                    color = '#f44336';
-                    qrCard.style.display = 'none';
+                    badge.innerHTML = '<i class="fas fa-sync fa-spin"></i> Initializing';
+                    badge.classList.add('status-initializing');
             }
-            
-            statusIcon.className = 'status-icon ' + iconClass;
-            statusIcon.innerHTML = `<i class="${icon}"></i>`;
-            statusIcon.style.color = color;
-            
-            addLog(`Status changed to: ${status}`, 'system');
         }
 
-        // Show QR Code
-        function showQRCode(qrCode) {
-            const qrContainer = document.getElementById('qrCodeDisplay');
-            qrContainer.innerHTML = '';
+        // Update sessions list
+        function updateSessionsList(sessions) {
+            const container = document.getElementById('sessionsList');
             
-            QRCode.toCanvas(qrCode, {
-                width: 250,
-                height: 250,
-                margin: 1,
-                color: {
-                    dark: '#000000',
-                    light: '#FFFFFF'
-                }
-            }, function(err, canvas) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-                qrContainer.appendChild(canvas);
+            if (sessions.length === 0) {
+                container.innerHTML = '<p>No active sessions</p>';
+                return;
+            }
+            
+            let html = '';
+            sessions.forEach(session => {
+                html += `
+                    <div class="session-item">
+                        <div class="session-details">
+                            <div class="session-id">${session.id}</div>
+                            <div>Code: <span class="session-code">${session.pairingCode}</span></div>
+                            <div>Status: ${session.status} | User: ${session.user?.phone || 'Not connected'}</div>
+                        </div>
+                        <div>
+                            <button onclick="selectSession('${session.id}')" class="copy-btn">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                        </div>
+                    </div>
+                `;
             });
             
-            addLog('New QR code generated', 'system');
+            container.innerHTML = html;
         }
 
-        // Show connected user info
-        function showConnected(data) {
-            const userInfo = document.getElementById('userInfo');
-            const phoneNumber = document.getElementById('phoneNumber');
-            
-            if (data.phone) {
-                phoneNumber.textContent = data.phone;
-                userInfo.style.display = 'block';
-                showAlert('Successfully connected to WhatsApp!', 'success');
-                addLog(`Connected as: ${data.phone}`, 'system');
+        // Create new session
+        function createNewSession() {
+            const sessionName = prompt('Enter session name (optional):', `IAN-TECH-${Date.now()}`);
+            if (sessionName) {
+                socket.emit('create_session', { sessionId: sessionName });
+                showAlert('Creating new session...', 'warning');
             }
         }
 
-        // Send message
-        async function sendMessage() {
-            const number = document.getElementById('numberInput').value;
-            const message = document.getElementById('messageInput').value;
+        // Refresh QR code
+        function refreshQR() {
+            socket.emit('get_qr', { sessionId: currentSession?.id });
+        }
+
+        // Copy pairing code
+        function copyPairingCode() {
+            const code = document.getElementById('pairingCodeDisplay').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                showAlert('Pairing code copied to clipboard!', 'success');
+            });
+        }
+
+        // Select session
+        function selectSession(sessionId) {
+            fetch(`/api/pairing-code/${sessionId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        updateSessionDisplay(data);
+                        showAlert(`Selected session: ${sessionId}`, 'success');
+                    } else {
+                        showAlert(data.error, 'error');
+                    }
+                });
+        }
+
+        // Handle pairing form submission
+        document.getElementById('pairingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (!number || !message) {
-                showAlert('Please enter both number and message', 'warning');
+            const pairingCode = document.getElementById('pairingCodeInput').value;
+            const countryCode = document.getElementById('countryCode').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const fullNumber = countryCode + phoneNumber;
+            
+            // Validate phone number
+            if (!phoneNumber.match(/^[0-9]{9,12}$/)) {
+                showAlert('Please enter a valid phone number (9-12 digits)', 'error');
+                return;
+            }
+            
+            if (!pairingCode.match(/^[A-Z0-9]{8}$/)) {
+                showAlert('Please enter a valid 8-digit alphanumeric code', 'error');
                 return;
             }
             
             try {
-                const response = await fetch('/api/send', {
+                const response = await fetch('/api/pair-with-code', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ number, message })
+                    body: JSON.stringify({
+                        pairingCode: pairingCode,
+                        phoneNumber: fullNumber
+                    })
                 });
                 
                 const data = await response.json();
                 
-                if (response.ok) {
-                    addLog(`Message sent to ${number}: ${message}`, 'You');
-                    document.getElementById('messageInput').value = '';
-                    showAlert('Message sent successfully!', 'success');
+                if (data.success) {
+                    showAlert(data.message, 'success');
                 } else {
-                    throw new Error(data.error);
+                    showAlert(data.error, 'error');
                 }
             } catch (error) {
                 showAlert('Error: ' + error.message, 'error');
             }
-        }
+        });
 
-        // Restart bot
-        async function restartBot() {
-            if (!confirm('Are you sure you want to restart the bot? This will clear the current session.')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch('/api/restart', { method: 'POST' });
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showAlert('Bot restarting...', 'warning');
-                    addLog('Bot restart initiated', 'system');
-                }
-            } catch (error) {
-                showAlert('Error: ' + error.message, 'error');
-            }
-        }
-
-        // Get QR code
-        function getQR() {
-            socket.emit('get_qr');
-        }
-
-        // Add log entry
-        function addLog(message, sender = 'system', timestamp = new Date()) {
-            logs.push({ message, sender, timestamp });
-            
-            if (logs.length > 50) logs.shift();
-            
-            const logsContainer = document.getElementById('logs');
-            const logEntry = document.createElement('div');
-            logEntry.className = 'log-entry';
-            
-            const time = new Date(timestamp).toLocaleTimeString();
-            logEntry.innerHTML = `
-                <span class="log-time">${time}</span>
-                <span class="log-sender">${sender}:</span>
-                <span class="log-message">${message}</span>
-            `;
-            
-            logsContainer.appendChild(logEntry);
-            logsContainer.scrollTop = logsContainer.scrollHeight;
-        }
-
-        // Show alert
+        // Show alert message
         function showAlert(message, type = 'info') {
-            const alertDiv = document.getElementById('alert');
+            const alertDiv = document.getElementById('alertMessage');
             alertDiv.textContent = message;
             alertDiv.className = `alert alert-${type}`;
             alertDiv.style.display = 'block';
@@ -512,18 +636,18 @@
             }, 5000);
         }
 
-        // Initial load
-        fetch('/api/status')
-            .then(res => res.json())
-            .then(data => {
-                updateStatus(data.status);
-                if (data.user) {
-                    showConnected({ phone: data.user.id.split(':')[0] });
-                }
-            })
-            .catch(err => {
-                console.error('Failed to load status:', err);
-            });
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load current sessions
+            fetch('/api/sessions')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.sessions.length > 0) {
+                        updateSessionsList(data.sessions);
+                        updateSessionDisplay(data.sessions[0]);
+                    }
+                });
+        });
     </script>
 </body>
 </html>
